@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加密解密工具</title>
+</head>
+<body>
+    <h1>加密解密工具</h1>
+    <div>
+        <label for="inputText">输入文本:</label>
+        <input type="text" id="inputText" placeholder="输入需要加密或解密的文本">
+    </div>
+    <div>
+        <label for="key">口令:</label>
+        <input type="text" id="key" placeholder="输入口令">
+    </div>
+    <div>
+        <button onclick="encrypt()">加密</button>
+        <button onclick="decrypt()">解密</button>
+    </div>
+    <div>
+        <label for="output">结果:</label>
+        <textarea id="output" rows="4" cols="50" placeholder="加密或解密后的结果"></textarea>
+    </div>
+
+    <script>
+        function generateKey(secretKey) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(secretKey);
+            const hash = crypto.subtle.digest('SHA-256', data).then(hash => {
+                return Array.from(new Uint8Array(hash)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+            });
+            return hash;
+        }
+
+        async function encrypt() {
+            const inputText = document.getElementById('inputText').value;
+            const secretKey = document.getElementById('key').value;
+            const key = await generateKey(secretKey);
+            const keyBytes = new Uint8Array(key.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            const plainTextBytes = new TextEncoder().encode(inputText);
+            const cipherText = new Uint8Array(plainTextBytes.length);
+            for (let i = 0; i < plainTextBytes.length; i++) {
+                cipherText[i] = plainTextBytes[i] ^ keyBytes[i % keyBytes.length];
+            }
+            const result = Array.from(cipherText, byte => byte.toString(16).padStart(2, '0')).join('');
+            document.getElementById('output').value = result;
+        }
+
+        async function decrypt() {
+            const cipherText = document.getElementById('inputText').value;
+            const secretKey = document.getElementById('key').value;
+            const key = await generateKey(secretKey);
+            const keyBytes = new Uint8Array(key.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            const cipherTextBytes = new Uint8Array(cipherText.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            const plainText = new Uint8Array(cipherTextBytes.length);
+            for (let i = 0; i < cipherTextBytes.length; i++) {
+                plainText[i] = cipherTextBytes[i] ^ keyBytes[i % keyBytes.length];
+            }
+            const result = new TextDecoder().decode(plainText);
+            document.getElementById('output').value = result;
+        }
+    </script>
+</body>
+</html>
