@@ -5,4 +5,4 @@ git教程：[https://github.com/binzhijie/binzhijie.github.io/blob/main/docs/git
 
 git命令翻译：[https://github.com/binzhijie/binzhijie.github.io/blob/main/docs/git_translate.md](https://github.com/binzhijie/binzhijie.github.io/blob/main/docs/git_translate.md)
 
-Update data: 2025-06-22
+> Update data: 2025-06-22
