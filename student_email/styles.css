@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffc9f7;
+    display: flex;
+    flex-direction: column;  /* 排列方式 */
+    justify-content: center; /* 主轴对齐方式 */
+    align-items: center;    /* 交叉轴对齐方式 */
+    margin: 0;  /* 外边距 */
+}
+
+.download {
+    background-color: #ffe2fb; /* 背景色 */
+    padding: 20px; /* 内边距 */
+    border-radius: 10px; /* 圆角 */ 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 阴影 */
+    width: 500px;    /* 宽度 */
+    margin: 50px;  /* 外边距 */
+}
+
+a {
+    color: blue;
+    font-size: 20px;
+}
+
+div.about {
+    background-color: #ffe2fb; /* 背景色 */
+    padding: 5px; /* 内边距 */
+    border-radius: 10px; /* 圆角 */ 
+    margin: 500px; /* 外边距 */
+    width: 500px; /* 宽度 */
+    text-align: center; /* 文本对齐方式 */
+    
+}
+p.callme {
+    font-size: 18px;
+    font-weight: bold;
+    color: cadetblue;
+}
+
+p.callme1 {
+    font_size: 15px;
+    font-weight: lighter;
+    color : blueviolet;
+}
