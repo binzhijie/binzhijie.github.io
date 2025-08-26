@@ -1,77 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZHIJIE DEFINITELY</title>
+    <link rel="icon" href="https://www.zhijiebin.dpdns.org/icon.ico" sizes="16x16" />
     <style>
+        :root {
+            --bg: #f0f8ff;
+            --blue: #5f9ea0;
+            --blue-dark: #3e7b7d;
+            --text: #333;
+            --link-color: #007BFF;
+            --link-hover-color: #0056b3;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            color: #333;
+            min-height: 100vh;
         }
-        div {
-            margin-bottom: 15px;
+
+        h1, h2 {
+            margin: 2rem 0;
+            color: var(--blue-dark);
         }
+
+        .container {
+            margin: 2rem 0;
+            max-width: 800px;
+            width: 100%;
+            padding: 2rem;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .section {
+            margin: 1rem 0;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: var(--blue);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--blue-dark);
+        }
+
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #555;
+            margin-bottom: 0.5rem;
+            color: var(--text);
         }
+
         input[type="text"], textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
-        }
-        button {
-            padding: 10px 15px;
-            border: none;
-            background-color: #007BFF;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .button-group {
-            display: flex;
-            justify-content: center;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>ZHIJIE DEFINITELY</h1>
-        <div>
+        <div class="section">
             <label for="inputText">输入文本:</label>
-            <textarea type="text" id="inputText" placeholder="输入需要加密或解密的文本"></textarea>
+            <textarea id="inputText" placeholder="输入需要加密或解密的文本"></textarea>
         </div>
-        <div>
+        <div class="section">
             <label for="key">口令:</label>
-            <textarea type="text" id="key" placeholder="输入口令"></textarea>
+            <textarea id="key" placeholder="输入口令"></textarea>
         </div>
-        <div class="button-group">
+        <div class="section button-group">
             <button onclick="encrypt()">加密</button>
             <button onclick="decrypt()">解密</button>
         </div>
-        <div>
+        <div class="section">
             <label for="output">结果:</label>
             <textarea id="output" rows="4" cols="50" placeholder="加密或解密后的结果"></textarea>
         </div>
