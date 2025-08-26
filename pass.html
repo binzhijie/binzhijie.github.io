@@ -3,25 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>加密解密工具</title>
+    <title>ZHIJIE DEFINITELY</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        div {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>加密解密工具</h1>
-    <div>
-        <label for="inputText">输入文本:</label>
-        <input type="text" id="inputText" placeholder="输入需要加密或解密的文本">
-    </div>
-    <div>
-        <label for="key">口令:</label>
-        <input type="text" id="key" placeholder="输入口令">
-    </div>
-    <div>
-        <button onclick="encrypt()">加密</button>
-        <button onclick="decrypt()">解密</button>
-    </div>
-    <div>
-        <label for="output">结果:</label>
-        <textarea id="output" rows="4" cols="50" placeholder="加密或解密后的结果"></textarea>
+    <div class="container">
+        <h1>ZHIJIE DEFINITELY</h1>
+        <div>
+            <label for="inputText">输入文本:</label>
+            <textarea type="text" id="inputText" placeholder="输入需要加密或解密的文本"></textarea>
+        </div>
+        <div>
+            <label for="key">口令:</label>
+            <textarea type="text" id="key" placeholder="输入口令"></textarea>
+        </div>
+        <div class="button-group">
+            <button onclick="encrypt()">加密</button>
+            <button onclick="decrypt()">解密</button>
+        </div>
+        <div>
+            <label for="output">结果:</label>
+            <textarea id="output" rows="4" cols="50" placeholder="加密或解密后的结果"></textarea>
+        </div>
     </div>
 
     <script>
