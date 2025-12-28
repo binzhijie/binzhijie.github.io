@@ -1,0 +1,761 @@
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hap-sign-utils</title>
+</head>
+
+<body>
+
+  <div class="tool-card">
+    <div class="step">
+      <div class="file-upload">
+        <input type="file" id="appInput" accept=".app,*/*" class="file-input" />
+        <label for="appInput" class="file-label">
+          <div>
+            <span class="file-icon">📁</span>
+            选择 .app 文件
+          </div>
+          <div id="appFileName" class="file-name">未选择文件</div>
+        </label>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="card">
+        <div class="hint">没有p7b文件？</div>
+        <div class="button-group">
+          <a id="downloadCsr" download="default.csr" class="btn hint-btn">
+            1. 下载 .csr 文件
+            <span class="btn-icon">📥</span>
+          </a>
+          <button onclick="autoBundleName()" class="hint-btn">
+            2. 帮我生成一个包名
+            <span class="btn-icon">📦</span>
+          </button>
+          <a href="https://developer.huawei.com/consumer/cn/service/josp/agc/index.html#/" target="_blank"
+            rel="noopener" class="btn hint-btn">
+            3. 打开华为 AppGallery Connect
+            <span class="btn-icon">↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="file-upload">
+        <input type="file" id="p7bInput" accept=".p7b,*/*" class="file-input" />
+        <label for="p7bInput" class="file-label">
+          <div>
+            <span class="file-icon">📁</span>
+            选择 .p7b 文件
+          </div>
+          <div id="p7bFileName" class="file-name">未选择文件</div>
+        </label>
+      </div>
+      <button onclick="signHap()" class="btn-primary">开始签名</button>
+    </div>
+  </div>
+
+  <div class="links">
+    <a href="https://github.com/kqakqakqa/hap-sign-utils" class="link github-link" target="_blank" rel="noopener">
+      <svg class="link-icon" viewBox="0 0 98 96">
+        <path
+          d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z" />
+      </svg>
+      <span>查看源代码仓库</span>
+    </a>
+
+    <a href="https://afdian.com/a/kqakqakqa" class="link afdian-link" target="_blank" rel="noopener">
+      <span class="link-icon">⚡️</span>
+      <span>作者的爱发电主页</span>
+    </a>
+
+    <button class="link github-link" onclick="downloadPage()" type="button">
+      <span class="link-icon">📥</span>
+      <span>保存此网页的副本</span>
+    </button>
+  </div>
+
+</body>
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .tool-card {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 50vmin;
+    padding: 24px;
+    border-radius: 12px;
+    background: #f8f9fa;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .file-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .file-input {
+    display: none;
+  }
+
+  .file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    background: white;
+    transition: all 0.2s;
+  }
+
+  .file-label:hover {
+    border-color: #0066ff;
+    background: #f0f6ff;
+  }
+
+  .file-icon {
+    font-size: 1.2rem;
+  }
+
+  .file-name {
+    font-size: 1rem;
+    color: #666;
+    padding: 0 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btn,
+  .btn-secondary,
+  .btn-primary {
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    background: #0066ff;
+    color: white;
+    font-weight: 500;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .btn-primary:hover {
+    background: #0055dd;
+  }
+
+  .hint {
+    font-size: 0.9rem;
+    color: #666;
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hint-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    background: white;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    justify-content: center;
+  }
+
+  .hint-btn:hover {
+    border-color: #0066ff;
+    background: #f0f6ff;
+    color: #0066ff;
+  }
+
+  .btn-icon {
+    font-size: 1rem;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    gap: 0.25rem;
+    color: #666;
+    background: unset;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+
+  .link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.2rem;
+    width: 1.2rem;
+    font-size: 1.2rem;
+    line-height: 1;
+    fill: #666;
+  }
+
+  .github-link:hover {
+    border-color: #5599ff;
+    background: #5599ff13;
+  }
+
+  .afdian-link:hover {
+    border-color: #946ce6;
+    background: #946ce613;
+  }
+</style>
+
+<script>
+  // 显示文件名
+  document.getElementById("appInput").addEventListener("change", function (e) {
+    const fileName = e.target.files[0]?.name || "未选择文件";
+    document.getElementById("appFileName").textContent = fileName;
+  });
+
+  document.getElementById("p7bInput").addEventListener("change", function (e) {
+    const fileName = e.target.files[0]?.name || "未选择文件";
+    document.getElementById("p7bFileName").textContent = fileName;
+  });
+
+  window.signHap = notReady;
+  window.autoBundleName = notReady;
+  window.downloadPage = notReady;
+
+  function notReady() {
+    alert("页面还没有加载完成");
+  }
+
+  const csrFile = "-----BEGIN NEW CERTIFICATE REQUEST-----\nMIH+MIGkAgEAMBIxEDAOBgNVBAMMB2RlZmF1bHQwWTATBgcqhkjOPQIBBggqhkjO\nPQMBBwNCAAR1VIBWnhZckS1Xr/GvhEpgr+HpSdlP48szkRw5xes+5+D2pAXts0Or\nsXQ4Y0u/RIWqF7oF7tAtSt92rlhsGUSLoDAwLgYJKoZIhvcNAQkOMSEwHzAdBgNV\nHQ4EFgQUIHP+3xCgek7Vv5FaHLI4sMRIpVMwCgYIKoZIzj0EAwIDSQAwRgIhAPIs\n6WmMIQ+uLZAKEC4scBCNMXa2kZmlZcjFZo/L8S+6AiEAsbsz8jEJMXEL0SNXTAi3\nKSHU01xBcwv1Q2Oi5zRlxos=\n-----END NEW CERTIFICATE REQUEST-----";
+  document.querySelector("#downloadCsr").href = URL.createObjectURL(new Blob([csrFile], { type: "application/octet-stream" }));
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="module">
+  import * as jsrsasign from "https://cdn.jsdelivr.net/npm/jsrsasign@11.1.0/+esm";
+  import JSZip from "https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm";
+
+  const p12Base64 = "MIIECwIBAzCCA8EGCSqGSIb3DQEHAaCCA7IEggOuMIIDqjCCAjoGCSqGSIb3DQEHBqCCAiswggInAgEAMIICIAYJKoZIhvcNAQcBMF8GCSqGSIb3DQEFDTBSMDEGCSqGSIb3DQEFDDAkBBCdTmEgtBxvOTX+9n4TAKrgAgJOIDAMBggqhkiG9w0CCQUAMB0GCWCGSAFlAwQBKgQQfKQ2yt2YyfKFpvoOTpoAsICCAbDwou30DZxuwZBAO41mDCWKytcsqR11o80oqFeLETtx+2ox/VEcjTtgVQ1BlxpUsKLqQUQw5ii/2yIaXVwAMBCRfbbu3D6Ltd2gFaYnsUCZlIUZ2mAeJvR6n6qh57UXWF94HuoZYdsbLWFDEK8TcTeDHdmsKvnbMw4UGwFHhLIUOQ3NGubmxrxMJHij8LeAdnwaQXX51OC2P8mSuDVvrexcAiYALnGBoTIfjZ3N8LwjdUR+pU2PRuEuthsDuRK8nzP5+wLuc2wh5wFU7utC5acerAWx1pB4uBXOSwd5nTkufxd/gCmLa3oMM8IVHdK9cr4ygLfZh+rLQRvSJKVQH5w4zNAvdgYZYMG+1sWmUFr4ul3Hlr6nz5ACfr8CyXhDSIt9r8TaGW/r0OaSR7rdQ/z0jaZVfp3cVrzzHUsjch0oeGpCl3bOwYnG0uth7RNCG/9SZEzSbPzyQe7Hkk+mpLu/7FxE6K/mtRgT+T0yWmABWfy0dpd5qlsh3T9k+jPyjo3vvzDv8WMkzb7uh1CjET7HrSGJ+jgrmBkGZxI4SRf48gwpqtTpbCh/xxOQvBPFHnIwggFoBgkqhkiG9w0BBwGgggFZBIIBVTCCAVEwggFNBgsqhkiG9w0BDAoBAqCB9zCB9DBfBgkqhkiG9w0BBQ0wUjAxBgkqhkiG9w0BBQwwJAQQqe5iktWgadtS0Utmte0HAQICTiAwDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEHurTSYsJqy7fq3cbNxAkEwEgZAkb/2AE4rhboaGyTFnPrTdUV7sV3na9rayFaCzTehnnGlhIKjjcd6Fc9U1h71pgOiGITQsCxR86GRsenrZaHjpz+4Rc/xgbhUgSV1WtIhPiBHewNNyC6ObtxMwJnbWYG2vS2cq1hb5iFVyLSynSvw4j1IpOUemCdnedGQVsP6ej4/vtC69l7P6vFjp9YC5+IcxRDAdBgkqhkiG9w0BCRQxEB4OAGQAZQBmAGEAdQBsAHQwIwYJKoZIhvcNAQkVMRYEFKYzJncFFDQb5B+oRJGbVy4krtmmMEEwMTANBglghkgBZQMEAgEFAAQg/jx8QAXgx4ujLx9flAjosCoFRs+7HIFEGkc43Kj40yMECHgv6uu9jsAZAgIIAA==";
+  const p12Pem = "-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgBCsp9yrXDMGvvKib\nUddAWZEqNGZmyELWeaJM19FbjGmhRANCAAR1VIBWnhZckS1Xr/GvhEpgr+HpSdlP\n48szkRw5xes+5+D2pAXts0OrsXQ4Y0u/RIWqF7oF7tAtSt92rlhsGUSL\n-----END PRIVATE KEY-----";
+  // https://pki.consumer.huawei.com/ca#/
+  const cerRoot = "-----BEGIN CERTIFICATE-----\nMIICGjCCAaGgAwIBAgIIShhpn519jNAwCgYIKoZIzj0EAwMwUzELMAkGA1UEBhMC\nQ04xDzANBgNVBAoMBkh1YXdlaTETMBEGA1UECwwKSHVhd2VpIENCRzEeMBwGA1UE\nAwwVSHVhd2VpIENCRyBSb290IENBIEcyMB4XDTIwMDMxNjAzMDQzOVoXDTQ5MDMx\nNjAzMDQzOVowUzELMAkGA1UEBhMCQ04xDzANBgNVBAoMBkh1YXdlaTETMBEGA1UE\nCwwKSHVhd2VpIENCRzEeMBwGA1UEAwwVSHVhd2VpIENCRyBSb290IENBIEcyMHYw\nEAYHKoZIzj0CAQYFK4EEACIDYgAEWidkGnDSOw3/HE2y2GHl+fpWBIa5S+IlnNrs\nGUvwC1I2QWvtqCHWmwFlFK95zKXiM8s9yV3VVXh7ivN8ZJO3SC5N1TCrvB2lpHMB\nwcz4DA0kgHCMm/wDec6kOHx1xvCRo0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0T\nAQH/BAUwAwEB/zAdBgNVHQ4EFgQUo45a9Vq8cYwqaiVyfkiS4pLcIAAwCgYIKoZI\nzj0EAwMDZwAwZAIwMypeB7P0IbY7c6gpWcClhRznOJFj8uavrNu2PIoz9KIqr3jn\nBlBHJs0myI7ntYpEAjBbm8eDMZY5zq5iMZUC6H7UzYSix4Uy1YlsLVV738PtKP9h\nFTjgDHctXJlC5L7+ZDY=\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMIIDATCCAoigAwIBAgIIXmuDXbWpOB8wCgYIKoZIzj0EAwMwUzELMAkGA1UEBhMC\nQ04xDzANBgNVBAoMBkh1YXdlaTETMBEGA1UECwwKSHVhd2VpIENCRzEeMBwGA1UE\nAwwVSHVhd2VpIENCRyBSb290IENBIEcyMB4XDTIwMDcwOTAyMDQyNFoXDTMwMDcw\nNzAyMDQyNFowYjELMAkGA1UEBgwCQ04xDzANBgNVBAoMBkh1YXdlaTETMBEGA1UE\nCwwKSHVhd2VpIENCRzEtMCsGA1UEAwwkSHVhd2VpIENCRyBEZXZlbG9wZXIgUmVs\nYXRpb25zIENBIEcyMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE65LdoIZh1hlpZ2gP\nbJ6gPhHsvYSRe22KETgdqeVeYnrbRHI9wsPT6RGYS+pU4mPl6wxzgDMqN6SY/BoZ\nluhkE1PzaHoPoNIWIq0O33hpyKyyYwAacIUEjYurkw1E9r9no4IBGDCCARQwHwYD\nVR0jBBgwFoAUo45a9Vq8cYwqaiVyfkiS4pLcIAAwHQYDVR0OBBYEFNtek7Ij6NDk\n/nF6Zumkc0dbf/NeMEYGA1UdIAQ/MD0wOwYEVR0gADAzMDEGCCsGAQUFBwIBFiVo\ndHRwOi8vY3BraS1jYXdlYi5odWF3ZWkuY29tL2Nwa2kvY3BzMBIGA1UdEwEB/wQI\nMAYBAf8CAQAwDgYDVR0PAQH/BAQDAgEGMGYGA1UdHwRfMF0wW6BZoFeGVWh0dHA6\nLy9jcGtpLWNhd2ViLmh1YXdlaS5jb20vY3BraS9zZXJ2bGV0L2NybEZpbGVEb3du\nLmNybD9jZXJ0eXBlPTEwJi9yb290X2cyX2NybC5jcmwwCgYIKoZIzj0EAwMDZwAw\nZAIwWO1X5q2MdfpR1Q237GpUHGbL1C13rGyFg2p3AYo44FpZ2/A9ss0wOHKM4KDl\nZPqdAjBLkf8NPZy7KVog98+iCTLq35DJ2ZVxkCxknA9YhiHVyXf4HPm4JlT7rW7o\nQ+FzM3c=\n-----END CERTIFICATE-----\n"
+  const pubKey = "-----BEGIN PUBLIC KEY-----\r\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdVSAVp4WXJEtV6/xr4RKYK/h6UnZ\r\nT+PLM5EcOcXrPufg9qQF7bNDq7F0OGNLv0SFqhe6Be7QLUrfdq5YbBlEiw==\r\n-----END PUBLIC KEY-----\r\n";
+
+  // const p12Blob = base64ToBlob(p12Base64);
+  const p12Uint8Array = base64ToUint8Array(p12Base64);
+
+  window.signHap = signHap;
+  window.autoBundleName = autoBundleName;
+  window.downloadPage = downloadPage;
+
+  async function autoBundleName() {
+    const bundleName = "hap.sign." + getTimeStr();
+    try {
+      await copyToClipboard(bundleName);
+    } catch {
+      alert("复制失败");
+      return;
+    }
+    alert("已复制到剪贴板");
+  }
+
+  async function downloadPage() {
+    try {
+      const indexResp = await fetch("index.html");
+      const indexHtml = await indexResp.text();
+
+      const licenseResp = await fetch("LICENSE");
+      const licenseText = await licenseResp.text();
+
+      const zip = new JSZip();
+      zip.file("index.html", indexHtml);
+      zip.file("LICENSE", licenseText);
+
+      const blob = await zip.generateAsync({ type: "blob" });
+      const filename = "hap-sign-utils副本" + getTimeStr() + ".zip";
+      downloadBlob(blob, filename);
+    } catch (e) {
+      alert("下载失败：" + e.message);
+      throw e;
+    }
+  }
+
+  async function signHap() {
+    try {
+      // input
+      const appFile = document.querySelector("#appInput").files[0];
+      if (!appFile) return alert("请选择 .app 文件");
+      const p7bFile = document.querySelector("#p7bInput").files[0];
+      if (!p7bFile) return alert("请选择 .p7b 文件");
+
+      //
+      if (!JSZip) return alert("签名工具加载不完整（JSZip），请检查网络");
+      if (!jsrsasign) return alert("签名工具加载不完整（jsrsasign），请检查网络");
+
+      // 解析 p7b
+      const p7bUint8Array = new Uint8Array(await p7bFile.arrayBuffer());
+      const p7bHex = uint8ArrayToHex(p7bUint8Array);
+
+      const p7bParser = new jsrsasign.KJUR.asn1.cms.CMSParser();
+      const p7bEContentHex = p7bParser.getCMSSignedData(p7bHex).econtent.content.hex;
+      const p7bEContentStr = new TextDecoder().decode(hexToUint8Array(p7bEContentHex))
+      const p7bEContent = JSON.parse(p7bEContentStr);
+      console.log("p7b eContent: ", p7bEContent);
+
+      const bundleName = p7bEContent["bundle-info"]["bundle-name"];
+      console.log("bundleName: ", bundleName);
+
+      const signTime = p7bEContent.validity["not-before"];
+      const signTimeStr = getTimeStr(new Date(signTime * 1000)) + "Z";
+      console.log("signTime: ", signTime, signTimeStr);
+
+      const cerLeaf = p7bEContent["bundle-info"]["development-certificate"];
+      const cerStr = cerRoot + cerLeaf;
+
+      const cerPubKey = jsrsasign.KEYUTIL.getPEM(jsrsasign.KEYUTIL.getKey(cerStr));
+      if (cerPubKey !== pubKey) alert(".p7b 文件公钥不匹配");
+
+      // 解压 app、hap
+      const appLoad = await JSZip.loadAsync(appFile);
+      const hapEntry = Object.values(appLoad.files).find(f => f.name.endsWith(".hap"));
+      if (!hapEntry) return alert(".app 文件中没有找到 .hap 文件");
+
+      const hapBlob = await hapEntry.async("blob");
+      const hapLoad = await JSZip.loadAsync(hapBlob);
+
+      // 修改 config.json 中的包名、version code
+      try {
+        const config = JSON.parse(await (hapLoad.file("config.json")).async("text"));
+        config.app.bundleName = bundleName;
+        config.app.version.code = 0;
+        hapLoad.file("config.json", JSON.stringify(config));
+      } catch (e) {
+        alert("config.json 解析失败：" + e.message);
+        throw e;
+      }
+
+      // const modifiedHapUint8Array = await hapLoad.generateAsync({
+      //   type: "uint8array",
+      //   compression: "STORE"
+      // });
+
+      // const cerUint8Array = new Uint8Array(await cerFile.arrayBuffer());
+
+      const unsignedBinUint8Array = await hapToBin(hapLoad);
+
+      const signedBinUint8Array = await signBin({
+        unsignedBinUint8Array,
+        p7bUint8Array,
+        p12Pem,
+        cerStr,
+        signTimeStr
+      });
+      const signedBinBlob = new Blob([signedBinUint8Array], { type: "application/octet-stream" });
+
+      const signedHap = new JSZip();
+      signedHap.file("signed.bin", signedBinBlob, { binary: true, compression: "STORE" });
+      const signedHapBlob = new Blob([await signedHap.generateAsync({ type: "blob" })], { type: "application/octet-stream" });
+      const fileName = appFile.name.replace(/\.app$/, "") + ".hap";
+
+      alert("签名完成");
+      downloadBlob(signedHapBlob, fileName);
+    } catch (e) {
+      alert("签名失败：" + e.message);
+      throw e;
+    }
+  }
+
+  async function hapToBin(hapLoad) {
+    const bundleName = JSON.parse(await (hapLoad.file("config.json")).async("text")).app.bundleName;
+
+    const encoder = new TextEncoder();
+    const parts = [];
+
+    // 写入 magic byte
+    const MAGIC_BYTE = 0xBE;
+    parts.push(Uint8Array.from([MAGIC_BYTE]));
+
+    // 写入 bundleName 长度（big endian int）+ 内容
+    const bundleNameBytes = encoder.encode(bundleName);
+    parts.push(makeInt32BE(bundleNameBytes.length));
+    parts.push(bundleNameBytes);
+
+    let fileCount = 0;
+    const sortedEntries = Object.entries(hapLoad.files)
+      .filter(([path, entry]) => !entry.dir)
+      .sort((a, b) => {
+        const depthA = a[0].split("/").length;
+        const depthB = b[0].split("/").length;
+        if (depthA !== depthB) return depthA - depthB;
+        return a[0].localeCompare(b[0]);
+      });
+
+    for (const [fullPath, zipEntry] of sortedEntries) {
+      console.log(fullPath);
+
+      if (zipEntry.dir) continue;
+
+      const content = await zipEntry.async("uint8array");
+      const fileName = fullPath.split("/").pop();
+      let relPath = "/" + fullPath.substring(0, fullPath.lastIndexOf("/"));
+      if (relPath === "/") relPath = "";
+
+      const fileNameBytes = encoder.encode(fileName);
+      const relPathBytes = encoder.encode(relPath);
+
+      // 文件名长度 + 内容
+      parts.push(makeInt32BE(fileNameBytes.length));
+      parts.push(fileNameBytes);
+
+      // 相对路径长度 + 内容
+      parts.push(makeInt32BE(relPathBytes.length));
+      parts.push(relPathBytes);
+
+      // 内容长度（8 字节） + 内容
+      parts.push(makeInt64BE(content.length));
+      parts.push(content);
+
+      fileCount++;
+    }
+
+    console.log(`写入了 ${fileCount} 个文件`);
+
+    return new Uint8Array(await (new Blob(parts, { type: "application/octet-stream" })).arrayBuffer());
+  }
+
+  async function signBin({ unsignedBinUint8Array, p7bUint8Array, p12Pem, cerStr, signTimeStr }) {
+    const unsignedBinLen = unsignedBinUint8Array.length;
+    const p7bLen = p7bUint8Array.length;
+    let offset = unsignedBinLen + 8 + 8;
+    const proBlockByte = getBlockHead(0x02, 0x00, p7bLen, offset);
+    offset += p7bLen;
+    const signBlockByte = getBlockHead(0x00, 0x00, 0, offset);
+
+    const bytes = new Uint8Array(unsignedBinLen + 8 + 8 + p7bLen);
+    bytes.set([
+      ...unsignedBinUint8Array,
+      ...proBlockByte,
+      ...signBlockByte,
+      ...p7bUint8Array
+    ], 0);
+
+    const hashBytes = getByteContent(await slicedSHA256(bytes));
+    const outputChunk = await generateSignedData({ dataUint8Array: hashBytes, p12Pem, cerStr, signTimeStr });
+
+    const bytes2 = new Uint8Array(unsignedBinLen + 8 + 8 + p7bLen + outputChunk.length);
+    bytes2.set([
+      ...bytes,
+      ...outputChunk
+    ], 0);
+
+    const size = bytes2.length - unsignedBinLen + 32;
+    const signHead = getSignHead(size);
+
+    const signedBin = new Uint8Array(signHead.length + bytes2.length);
+    signedBin.set([
+      ...bytes2,
+      ...signHead
+    ], 0);
+
+    return signedBin;
+  }
+
+  function getBlockHead(type, tag, length, offset) {
+    const bytes = new Uint8Array(8);
+    bytes.set([
+      type,
+      tag,
+      (length >> 8) & 0xff,
+      length & 0xff,
+      (offset >> 24) & 0xff,
+      (offset >> 16) & 0xff,
+      (offset >> 8) & 0xff,
+      offset & 0xff
+    ], 0);
+    return bytes;
+  }
+
+  function getByteContent(inBytes) {
+    const dataLen = inBytes.length;
+    const size = 8 + 8 + dataLen;
+    const outBytes = new Uint8Array(size);
+    outBytes.set([
+      ...stringToBytes("1000"),
+      (size >> 8) & 0xff,
+      size & 0xff,
+      0x00,
+      0x01,
+      0x00,
+      0x88,
+      0x00,
+      0x06,
+      (dataLen >> 24) & 0xff,
+      (dataLen >> 16) & 0xff,
+      (dataLen >> 8) & 0xff,
+      dataLen & 0xff,
+      ...inBytes
+    ], 0);
+    return outBytes;
+  }
+
+  function getSignHead(subBlockSize) {
+    const signHead = new Uint8Array(32);
+    signHead.set([
+      ...stringToBytes("hw signed app   "),
+      ...stringToBytes("1000"),
+      (subBlockSize >> 24) & 0xff,
+      (subBlockSize >> 16) & 0xff,
+      (subBlockSize >> 8) & 0xff,
+      subBlockSize & 0xff,
+      0x00, 0x00, 0x00, 0x02,
+      0x00, 0x00, 0x00, 0x00
+    ], 0);
+
+    return signHead;
+  }
+
+  async function generateSignedData({ dataUint8Array, p12Pem, cerStr, signTimeStr }) {
+    console.log(`generateSignedData ${dataUint8Array}, p12: ${p12Pem}, cer: ${cerStr}, signtime: ${signTimeStr}`);
+
+    // 读取 CER
+    const certs = sortCerts(cerStr.trim().split(/(?=-----BEGIN CERTIFICATE-----)/).map(s => s.trim()));
+
+    // 构造 SignedData
+    const signedData = new jsrsasign.KJUR.asn1.cms.SignedData({
+      version: 1,
+      hashalgs: ["sha256"],
+      econtent: {
+        type: "data",
+        content: {
+          hex: uint8ArrayToHex(dataUint8Array)
+        }
+      },
+      certs: certs,
+      revinfos: { array: [] },
+      sinfos: [{
+        version: 1,
+        id: {
+          type: "isssn",
+          cert: certs[0]
+        },
+        hashalg: "sha256",
+        sattrs: {
+          array: [{
+            attr: "signingTime",
+            type: new jsrsasign.KJUR.asn1.cms.SigningTime(signTimeStr),
+          },
+          {
+            attr: "contentType",
+            type: "1.2.840.113549.1.7.1"
+          }, {
+            attr: "messageDigest",
+            hex: uint8ArrayToHex(new Uint8Array(await crypto.subtle.digest("SHA-256", dataUint8Array)))
+          }]
+        },
+        sigalg: "SHA256withECDSA",
+        signkey: p12Pem
+      }]
+    });
+
+    // 编码为 DER
+    const derHex = signedData.getContentInfoEncodedHex();
+    return hexToUint8Array(derHex);
+  }
+
+  function sortCerts(certs) {
+    // 解析 subject issuer
+    const cert = certs.map(pem => {
+      const c = new jsrsasign.X509();
+      c.readCertPEM(pem);
+      console.log(`cert: subject=${c.getSubjectString()}, issuer=${c.getIssuerString()}`);
+      return {
+        pem,
+        subject: c.getSubjectString(),
+        issuer: c.getIssuerString()
+      };
+    });
+
+    // 找叶子证书
+    const leaf = cert.find(c => !cert.some(x => x.issuer === c.subject));
+    if (!leaf) throw new Error("找不到叶子证书");
+
+    // 排序
+    const ordered = [];
+    let current = leaf;
+    while (current) {
+      ordered.push(current.pem);
+      if (current.subject === current.issuer) break; // 根证书
+      current = cert.find(x => x.subject === current.issuer);
+    }
+
+    return ordered;
+  }
+
+  async function slicedSHA256(bytes) {
+    const chunkSize = 4096;
+    const hashBuffer = new Uint8Array(Math.ceil(bytes.length / chunkSize) * 32);
+
+    // 分块计算 SHA256
+    for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+      const chunk = bytes.subarray(offset, offset + chunkSize);
+      const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", chunk))
+      hashBuffer.set(digest, Math.floor(offset / chunkSize) * 32);
+    }
+
+    const totalDigest = await crypto.subtle.digest("SHA-256", hashBuffer);
+    return new Uint8Array(totalDigest);
+  }
+
+  function makeInt32BE(num) {
+    const buffer = new ArrayBuffer(4);
+    new DataView(buffer).setUint32(0, num, false); // false = big endian
+    return new Uint8Array(buffer);
+  }
+
+  function makeInt64BE(num) {
+    const buffer = new ArrayBuffer(8);
+    new DataView(buffer).setBigUint64(0, BigInt(num), false); // false = big endian
+    return new Uint8Array(buffer);
+  }
+
+  function base64ToUint8Array(base64) {
+    const binary = atob(base64); // base64 → 二进制字符串
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  function stringToBytes(str) {
+    return new Uint8Array([...str].map(c => c.charCodeAt(0)));
+  }
+
+  function uint8ArrayToHex(uint8Array) {
+    return Array.from(uint8Array)
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  function hexToUint8Array(hex) {
+    return new Uint8Array(hex.match(/.{2}/g).map(h => parseInt(h, 16)));
+  }
+
+  // function base64ToBlob(base64) {
+  //   return new Blob([base64ToUint8Array(base64)], { type: "application/octet-stream" });
+  // }
+
+  function getTimeStr(date = new Date(new Date().getTime() + 8 * 3600 * 1000)) {
+    const year = date.getUTCFullYear();
+    const month = ("0" + (date.getUTCMonth() + 1)).slice(-2);
+    const day = ("0" + date.getUTCDate()).slice(-2);
+    const hours = ("0" + date.getUTCHours()).slice(-2);
+    const minutes = ("0" + date.getUTCMinutes()).slice(-2);
+    const seconds = ("0" + date.getUTCSeconds()).slice(-2);
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
+  }
+
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      execCommandCopyToClipboard();
+    }
+
+    function execCommandCopyToClipboard() {
+      let textArea = document.createElement("textArea");
+      // textArea.style.display = "none";
+      textArea.style.position = "fixed";
+      textArea.setAttribute("readonly", "readonly");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("Copy");
+      textArea.remove();
+    }
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>image2bin</title>
+</head>
+
+<body>
+  <h1>图片转bin</h1>
+
+  <div class="items-wrapper">
+    <div class="preset" data-w="408" data-h="480">FIT3,4 D2</div>
+    <div class="preset" data-w="466" data-h="466">GT3,4,5,6,Runner,Cyber</div>
+    <div class="preset" data-w="336" data-h="480">FIT2</div>
+    <div class="preset" data-w="454" data-h="454">GT2 GS3 GSPro</div>
+    <div class="preset" data-w="390" data-h="390">GT2(42mm)</div>
+    <div class="preset" data-w="280" data-h="456">D</div>
+  </div>
+
+  <div class="items-wrapper">
+    <input id="width" type="number" placeholder="宽度 (px)" />
+    <input id="height" type="number" placeholder="高度 (px)" />
+  </div>
+
+  <div class="items-wrapper fitMode-wrapper">
+    <label for="fitMode">缩放方式：</label>
+    <select id="fitMode">
+      <option value="original">不缩放</option>
+      <option value="contain" selected>适应</option>
+      <option value="contain-circle">适应（圆形）</option>
+      <option value="fill">填充</option>
+      <option value="stretch">拉伸</option>
+      <option value="center">居中</option>
+      <option value="repeat">平铺</option>
+    </select>
+  </div>
+
+  <button id="fileCard" type="button"> 选择图片</button>
+  <input id="fileInput" type="file" accept="image/*" hidden multiple />
+  <div id="fileInfo">未选择文件</div>
+
+  <button id="convertBtn" type="button" disabled>转换并下载</button>
+
+  <div id="canvasList"></div>
+
+  <template id="canvasTemplate">
+    <canvas width="256" height="256" style="display: none;"></canvas>
+  </template>
+
+
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      font-family: sans-serif;
+      margin: 2rem;
+    }
+
+    canvas {
+      display: block;
+      border: 2px solid #999;
+      background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 50% / 1rem 1rem;
+      max-width: 40rem;
+    }
+
+    #canvasList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    input,
+    select,
+    button {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .items-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      max-width: 100vmin;
+    }
+
+    .preset {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      background: #fafafa;
+      /* transition: 0.2s; */
+    }
+
+    .preset:hover {
+      background: #e6f0ff;
+      border-color: #66a3ff;
+    }
+
+    .fitMode-wrapper label {
+      align-self: center;
+    }
+
+    #fileInfo {
+      color: #555;
+    }
+  </style>
+
+  <script>
+    const fileCard = document.getElementById("fileCard");
+    const fileInput = document.getElementById("fileInput");
+    const fileInfo = document.getElementById("fileInfo");
+    const fitMode = document.getElementById("fitMode");
+    const convertBtn = document.getElementById("convertBtn");
+    const canvasList = document.getElementById("canvasList");
+    const canvasTemplate = document.getElementById("canvasTemplate");
+
+    let items = []; // [{ imgName, img, canvas, ctx }]
+
+    fileCard.addEventListener("click", () => fileInput.click());
+
+    document.querySelectorAll(".preset").forEach(el => {
+      el.addEventListener("click", () => {
+        document.getElementById("width").value = el.dataset.w;
+        document.getElementById("height").value = el.dataset.h;
+      });
+    });
+
+    // 上传
+    fileInput.addEventListener("change", async (e) => {
+      const files = [...e.target.files];
+
+      items = [];
+      canvasList.innerHTML = "";
+      fileInfo.innerHTML = "未选择文件";
+
+      if (!files.length) return;
+
+      fileInfo.innerHTML = "已选择：";
+
+      for (const file of files) {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.src = url;
+        await img.decode();
+        URL.revokeObjectURL(img.src);
+
+        fileInfo.innerHTML += `<br />${file.name} (${img.width}×${img.height})`;
+
+        const node = canvasTemplate.content.cloneNode(true);
+        const canvas = node.querySelector("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvasList.appendChild(node);
+
+        items.push({
+          imgName: file.name.replace(/\.[^.]+$/, ""),
+          img,
+          canvas,
+          ctx
+        });
+      }
+
+      convertBtn.disabled = false;
+    });
+
+    convertBtn.addEventListener("click", () => {
+      if (!items.length) return;
+
+      const width = parseInt(document.getElementById("width").value) || null;
+      const height = parseInt(document.getElementById("height").value) || null;
+      const mode = (width !== null && height !== null) ? fitMode.value : "original";
+
+      for (const it of items) {
+        const img = it.img;
+        const w = width || img.width;
+        const h = height || img.height;
+
+        it.canvas.width = w;
+        it.canvas.height = h;
+
+        const ctx = it.ctx;
+        ctx.clearRect(0, 0, w, h);
+        drawImageFit(ctx, img, w, h, mode);
+        it.canvas.style.display = "";
+
+        saveCanvasBin(it.canvas, it.imgName);
+      }
+    });
+
+    function drawImageFit(ctx, img, width, height, mode) {
+      const iw = img.width;
+      const ih = img.height;
+
+      switch (mode) {
+        case "fill": {
+          const scale = Math.max(width / iw, height / ih);
+          const sw = iw * scale;
+          const sh = ih * scale;
+          const x = (width - sw) / 2;
+          const y = (height - sh) / 2;
+          ctx.drawImage(img, x, y, sw, sh);
+          break;
+        }
+        case "contain": {
+          const scale = Math.min(width / iw, height / ih);
+          const sw = iw * scale;
+          const sh = ih * scale;
+          const x = (width - sw) / 2;
+          const y = (height - sh) / 2;
+          ctx.drawImage(img, x, y, sw, sh);
+          break;
+        }
+        case "contain-circle": {
+          const r = Math.min(width, height) / 2;
+          const scale = (2 * r) / Math.sqrt(iw * iw + ih * ih);
+          const sw = iw * scale;
+          const sh = ih * scale;
+          const x = (width - sw) / 2;
+          const y = (height - sh) / 2;
+          ctx.drawImage(img, x, y, sw, sh);
+          break;
+        }
+        case "stretch": {
+          ctx.drawImage(img, 0, 0, width, height);
+          break;
+        }
+        case "center": {
+          ctx.drawImage(img, (width - iw) / 2, (height - ih) / 2);
+          break;
+        }
+        case "repeat": {
+          const pattern = ctx.createPattern(img, "repeat");
+          ctx.fillStyle = pattern;
+          ctx.fillRect(0, 0, width, height);
+          break;
+        }
+        case "original": {
+          let w = iw;
+          let h = ih;
+          if (w > 2048 || h > 2048) {
+            const scale = Math.min(2048 / w, 2048 / h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+          ctx.canvas.width = w;
+          ctx.canvas.height = h;
+          ctx.drawImage(img, 0, 0, w, h);
+          break;
+        }
+      }
+    }
+
+    function saveCanvasBin(canvas, name) {
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+      const data = ctx.getImageData(0, 0, width, height).data;
+
+      const headerSize = 8;
+      const pixelSize = 4;
+      const buffer = new ArrayBuffer(headerSize + width * height * pixelSize);
+      const view = new DataView(buffer);
+
+      // Header
+      let offset = 0;
+      view.setUint32(offset, 256, true); offset += 4;
+      const encodedWH = (width << 0) + (height << 16);
+      view.setUint32(offset, encodedWH, true); offset += 4;
+
+      // Pixels (B, G, R, A)
+      for (let i = 0; i < data.length; i += 4) {
+        view.setUint8(offset++, data[i + 2]); // R
+        view.setUint8(offset++, data[i + 1]); // G
+        view.setUint8(offset++, data[i + 0]); // B
+        view.setUint8(offset++, data[i + 3]); // A
+      }
+
+      const blob = new Blob([buffer], { type: "application/octet-stream" });
+      const link = document.createElement("a");
+      link.download = `${name}.bin.mp3`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+  </script>
+</body>
+
+</html>
