@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>快捷跳转中心</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --accent-color: #4895ef;
+      --success-color: #4cc9f0;
+      --light-color: #f8f9fa;
+      --dark-color: #212529;
+      --gray-color: #6c757d;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --card-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.15);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --border-radius: 16px;
+      --card-bg: white;
+      --text-color: #2d3748;
+      --text-secondary: #4a5568;
+      --header-bg: rgba(255, 255, 255, 0.95);
+      --header-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+      min-height: 100vh;
+      color: var(--text-color);
+    }
+
+    .header {
+      background: var(--header-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--header-shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      font-size: 1.8rem;
+      color: var(--primary-color);
+      background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .search-container {
+      position: relative;
+      width: 280px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border-radius: 50px;
+      border: 2px solid #e2e8f0;
+      background: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-color);
+      font-size: 1rem;
+    }
+
+    .main-content {
+      padding: 2rem 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .back-link a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      background: rgba(67, 97, 238, 0.1);
+      transition: var(--transition);
+    }
+
+    .back-link a:hover {
+      background: rgba(67, 97, 238, 0.2);
+      transform: translateX(-3px);
+    }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 28px;
+      padding: 1rem;
+    }
+
+    .link-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .link-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .link-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .link-card:hover::before {
+      opacity: 1;
+    }
+
+    .link-card.popular::before {
+      background: linear-gradient(to bottom, #ff6b6b, #ee5a24);
+    }
+
+    .link-card.tool::before {
+      background: linear-gradient(to bottom, #4CAF50, #45a049);
+    }
+
+    .link-card.download::before {
+      background: linear-gradient(to bottom, #2196F3, #1976D2);
+    }
+
+    .link-card.blog::before {
+      background: linear-gradient(to bottom, #9c27b0, #7b1fa2);
+    }
+
+    .link-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .favicon-container {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(72, 149, 239, 0.1));
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1px solid rgba(67, 97, 238, 0.2);
+    }
+
+    .favicon {
+      width: 20px;
+      height: 20px;
+      border-radius: 2px;
+      object-fit: contain;
+    }
+
+    .link-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-decoration: none;
+      line-height: 1.3;
+      transition: var(--transition);
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .link-title:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+
+    .link-desc {
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex-grow: 1;
+      position: relative;
+      z-index: 2;
+    }
+
+    .link-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(0, 0, 0, 0.1);
+    }
+
+    .link-url {
+      font-size: 0.85rem;
+      color: var(--gray-color);
+      word-break: break-all;
+      line-height: 1.4;
+      opacity: 0.85;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary-color);
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.9rem;
+    }
+
+    .action-btn:hover {
+      background: rgba(67, 97, 238, 0.2);
+      transform: scale(1.1);
+    }
+
+    .action-btn.copy:hover {
+      background: rgba(72, 199, 112, 0.2);
+      color: #48c770;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 15px;
+      margin-top: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      background: var(--card-bg);
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      min-width: 120px;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      grid-column: 1 / -1;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
+    .empty-state p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .search-container {
+        width: 100%;
+      }
+
+      .links-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo h1 {
+        font-size: 1.8rem;
+      }
+      
+      .links-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animation classes */
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <i class="fas fa-rocket logo-icon"></i>
+          <h1>快捷跳转中心</h1>
+        </div>
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" id="searchInput" placeholder="搜索链接...">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="container">
+      <div class="back-link">
+        <a href="/">
+          <i class="fas fa-arrow-left"></i> 返回主页
+        </a>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-number" id="totalLinks">0</div>
+          <div class="stat-label">总链接</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="visibleLinks">0</div>
+          <div class="stat-label">当前显示</div>
+        </div>
+      </div>
+
+      <div class="links-grid" id="links-container"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      BinZhijie &copy; <span id="currentYear"></span> | 快捷跳转中心
+    </div>
+  </footer>
+
+  <script>
+    // 设置当前年份
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // 链接数据
+    const quickLinks = [
+      {
+        name: "官网博客",
+        desc: "BinZhijie 的主博客站点",
+        url: "https://www.zhijie.qzz.io/blog",
+        category: "blog"
+      },
+      {
+        name: "博客园（旧）",
+        desc: "BinZhijie 的博客园主页",
+        url: "https://www.cnblogs.com/bzjvip",
+        category: "blog"
+      },
+      {
+        name: "飘秋云岭服务器网站",
+        desc: "飘秋云岭 Minecraft 服务器官网",
+        url: "https://www.zhijie.qzz.io/server_website/index.html",
+        category: "server"
+      },
+      {
+        name: "密码生成工具",
+        desc: "生成高强度随机密码",
+        url: "https://www.zhijie.qzz.io/password-generator",
+        category: "tool"
+      },
+      {
+        name: "Active GitHub Forks",
+        desc: "Find active github forks of a repo",
+        url: "https://www.zhijie.qzz.io/active-forks/",
+        category: "tool"
+      },
+      {
+        name: "App签名工具",
+        desc: "鸿蒙轻智能手表.app文件签名工具",
+        url: "https://www.zhijie.qzz.io/hap-sign-utils-main/index.html",
+        category: "tool"
+      },
+      {
+        name: "文字加密工具",
+        desc: "简单文本加密/解密页面",
+        url: "https://www.zhijie.qzz.io/pass.html",
+        category: "tool"
+      },
+      {
+        name: "RollCall点名器下载",
+        desc: "课堂点名工具下载",
+        url: "https://www.123pan.com/s/K9i0Vv-JiSgH.html",
+        category: "download"
+      },
+      {
+        name: "学生会专用邮件下载",
+        desc: "学生会内部邮件模板下载页",
+        url: "https://www.zhijie.qzz.io/student_email/index.html",
+        category: "download"
+      },
+      {
+        name: "开源阅读资源下载",
+        desc: "开源阅读资源下载",
+        url: "https://www.zhijie.qzz.io/legado-web/",
+        category: "download"
+      }
+    ];
+
+    // DOM元素
+    const container = document.getElementById("links-container");
+    const searchInput = document.getElementById("searchInput");
+    const totalLinksEl = document.getElementById("totalLinks");
+    const visibleLinksEl = document.getElementById("visibleLinks");
+
+    // 统计数据
+    totalLinksEl.textContent = quickLinks.length;
+
+    // 渲染链接卡片
+    function renderLinks(linksToRender) {
+      container.innerHTML = '';
+      visibleLinksEl.textContent = linksToRender.length;
+
+      if (linksToRender.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <p>没有找到匹配的链接</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-color)">
+              请尝试调整搜索关键词
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      linksToRender.forEach((link, index) => {
+        setTimeout(() => {
+          try {
+            let faviconUrl = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23e2e8f0'/%3E%3C/svg%3E";
+            if (link.url.startsWith("http")) {
+              const urlObj = new URL(link.url);
+              const domain = urlObj.hostname.replace(/^www\./, '');
+              faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+            }
+
+            const cardClasses = [`link-card`];
+            if (link.category === 'tool') cardClasses.push('tool');
+            if (link.category === 'download') cardClasses.push('download');
+            if (link.category === 'blog') cardClasses.push('blog');
+
+            const card = document.createElement("div");
+            card.className = cardClasses.join(' ');
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('fade-in');
+
+            card.innerHTML = `
+              <div class="link-header">
+                <div class="favicon-container">
+                  <img class="favicon" src="${faviconUrl}" alt="${link.name} favicon" onerror="this.closest('.favicon-container').innerHTML='<i class=&quot;fas fa-link&quot; style=&quot;color: var(--primary-color); font-size: 16px;&quot;></i>'">
+                </div>
+                <a class="link-title" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.name}</a>
+              </div>
+              <div class="link-desc">${link.desc}</div>
+              <div class="link-footer">
+                <div class="link-url">${link.url.replace(/^https?:\/\//, '')}</div>
+                <div class="card-actions">
+                  <button class="action-btn copy" title="复制链接" onclick="copyLink('${link.url}', this)">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                  <button class="action-btn" title="在新标签页打开" onclick="openLink('${link.url}')">
+                    <i class="fas fa-external-link-alt"></i>
+                  </button>
+                </div>
+              </div>
+            `;
+            container.appendChild(card);
+          } catch (e) {
+            console.warn("无效链接:", link.url, e);
+          }
+        }, index * 100);
+      });
+    }
+
+    // 搜索功能
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase().trim();
+      
+      const filteredLinks = quickLinks.filter(link => {
+        const matchesSearch = searchTerm === '' || 
+          link.name.toLowerCase().includes(searchTerm) || 
+          link.desc.toLowerCase().includes(searchTerm) || 
+          link.url.toLowerCase().includes(searchTerm);
+        
+        return matchesSearch;
+      });
+      
+      renderLinks(filteredLinks);
+    });
+
+    // 复制链接功能
+    function copyLink(url, button) {
+      navigator.clipboard.writeText(url).then(() => {
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.style.background = 'rgba(72, 199, 112, 0.3)';
+        button.style.color = '#48c770';
+        
+        setTimeout(() => {
+          button.innerHTML = originalIcon;
+          button.style.background = 'rgba(67, 97, 238, 0.1)';
+          button.style.color = '';
+        }, 1500);
+      });
+    }
+
+    // 打开链接功能
+    function openLink(url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    // 初始渲染
+    renderLinks(quickLinks);
+  </script>
+</body>
+</html>
