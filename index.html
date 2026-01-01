@@ -7,134 +7,403 @@
   <link rel="icon" href="/icon.ico" sizes="16x16" />
   <style>
     :root {
-      --bg: #f0f8ff;
-      --blue: #5f9ea0;
-      --blue-dark: #3e7b7d;
-      --text: #333;
-      --link-color: #007BFF;
-      --link-hover-color: #0056b3;
+      /* 抹茶绿主题配色 */
+      --primary-color: #88C9A1;        /* 主色调 - 抹茶绿 */
+      --primary-dark: #6CA88B;         /* 深抹茶绿 */
+      --primary-light: #A8D8B9;        /* 浅抹茶绿 */
+      --accent-color: #5A9E7F;         /* 强调色 */
+      --background-light: #F8FDFB;     /* 浅背景 */
+      --background-card: #FFFFFF;      /* 卡片背景 */
+      --text-primary: #333333;         /* 主要文字 */
+      --text-secondary: #5A6B62;       /* 次要文字 */
+      --shadow-color: rgba(88, 158, 127, 0.15);
+      --border-radius: 12px;
+      --transition: all 0.3s ease;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 2rem;
+      --spacing-xl: 4rem;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--background-light) 0%, #E8F5F1 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      text-align: center;
-      min-height: 100vh;
+      padding: var(--spacing-lg);
+      position: relative;
+      overflow-x: hidden;
     }
 
-    h1 {
-      margin: 2rem 0;
-      color: var(--blue-dark);
-    }
-
-    a {
-      color: var(--link-color);
-      text-decoration: none;
-      font-weight: 600;
-      transition: .3s;
-    }
-
-    a:hover {
-      color: var(--link-hover-color);
-      text-decoration: underline;
+    body::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      z-index: -1;
+      opacity: 0.08;
     }
 
     .container {
-      margin: 2rem 0;
-      max-width: 800px;
+      max-width: 1000px;
       width: 100%;
-      padding: 2rem;
-      background: white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-
-    .section {
-      margin: 1rem 0;
-    }
-
-    .section h2 {
-      margin-bottom: 1rem;
-      color: var(--blue-dark);
-    }
-
-    .quick-links {
+      margin: var(--spacing-lg) auto;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      gap: var(--spacing-lg);
     }
 
-    .quick-links a {
-      margin: 0.5rem 0;
-    }
-
-    footer {
-      /* background: #fff; */
+    /* 头部样式 */
+    .header {
       text-align: center;
-      padding: 1rem;
-      color: #555;
+      padding: var(--spacing-lg) 0;
+      position: relative;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--primary-color);
+      border-radius: 2px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: var(--spacing-md);
+      background: linear-gradient(45deg, var(--primary-dark), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 4px rgba(88, 158, 127, 0.1);
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-top: var(--spacing-sm);
+      font-weight: 300;
+    }
+
+    /* 卡片样式 */
+    .card {
+      background: var(--background-card);
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 30px var(--shadow-color);
+      padding: var(--spacing-lg);
+      transition: var(--transition);
+      border: 1px solid rgba(136, 201, 161, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px var(--shadow-color);
+      border-color: var(--primary-color);
+    }
+
+    .card-header {
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--primary-light);
+      text-align: center;
+    }
+
+    .card-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    /* 链接样式 */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--spacing-md);
+    }
+
+    .link-item {
+      display: block;
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius);
+      background: rgba(248, 253, 251, 0.7);
+      border: 1px solid rgba(136, 201, 161, 0.3);
+      transition: var(--transition);
+      text-align: left;
+      text-decoration: none;
+      color: var(--text-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .link-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary-color);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: var(--transition);
+    }
+
+    .link-item:hover {
+      background: rgba(136, 201, 161, 0.08);
+      border-color: var(--primary-color);
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px var(--shadow-color);
+    }
+
+    .link-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .link-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: var(--spacing-sm);
+      color: var(--primary-dark);
+    }
+
+    .link-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* 页脚样式 */
+    footer {
+      text-align: center;
+      padding: var(--spacing-md) 0;
+      color: var(--text-secondary);
       font-size: 0.9rem;
       margin-top: auto;
+      width: 100%;
+      border-top: 1px solid rgba(136, 201, 161, 0.2);
     }
 
-    /* 响应式调整 */
-    @media (max-width: 600px) {
-      body {
-        padding: 1rem;
+    .copyright {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      :root {
+        --spacing-lg: 1.5rem;
       }
-      .container {
-        padding: 1rem;
-      }
+      
       h1 {
-        margin: 1rem 0;
-        font-size: 2rem;
+        font-size: 2.2rem;
       }
-      .section h2 {
-        font-size: 1.8rem;
+      
+      .container {
+        padding: 0 var(--spacing-md);
       }
-      .quick-links a {
-        margin: 0.3rem 0;
-        font-size: 1.2rem;
+      
+      .links-grid {
+        grid-template-columns: 1fr;
       }
-      footer {
-        padding: 0.5rem;
+      
+      .card {
+        padding: var(--spacing-md);
       }
     }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .subtitle {
+        font-size: 1rem;
+      }
+      
+      .card-title {
+        font-size: 1.4rem;
+      }
+      
+      .link-title {
+        font-size: 1rem;
+      }
+    }
+
+    /* 动画效果 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.3s; }
   </style>
-  <script charset="UTF-8" id="MXA_COLLECT" src="//mxana.tacool.com/sdk.js"></script>
-  <script>MXA.init({ id: "c2-nyNt249m", useHeatMap: true, useHash: true, useErrorLog: true })</script>
 </head>
 <body>
   <div class="container">
-    <h1>欢迎访问BinZhijie的网站！</h1>
-
-    <div class="quick-links">
-      <a href="https://www.zhijie.qzz.io/blog">点击访问官网博客</a>
-      <a href="https://www.cnblogs.com/bzjvip">点击访问博客园站点(旧)</a>
+    <div class="header">
+      <h1>✨ BinZhijie's Digital Garden</h1>
+      <p class="subtitle">所有的伟大都源自一个勇敢的开始</p>
     </div>
 
-    <div class="section">
-      <h2>快捷链接</h2>
-      <div class="quick-links">
-        <a href="/tools">🚀 访问新版快捷跳转中心</a>
-        <!-- <a href="/server_website/index.html">访问飘秋云岭服务器网站</a>
-        <a href="/password-generator">密码生成工具</a>
-        <a href="/hap-sign-utils-main/index.html">app签名工具</a>
-        <a href="/pass.html">文字加密</a>
-        <a href="https://www.123pan.com/s/K9i0Vv-JiSgH.html">RollCall点名器下载</a>
-        <a href="/student_email/index.html">学生会专用邮件下载</a> -->
-  </div>
-</div>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">我的博客天地</h2>
+      </div>
+      <div class="links-grid" id="blog-links">
+        <!-- 博客链接将由JavaScript动态生成 -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">快捷跳转中心</h2>
+      </div>
+      <div class="links-grid" id="quick-links">
+        <!-- 快捷链接将由JavaScript动态生成 -->
+      </div>
     </div>
   </div>
 
-  <footer>BinZhijie &copy; 2026</footer>
+  <footer>
+    <div class="copyright">
+      <span>BinZhijie &copy; 2026 | 抹茶绿主题设计</span>
+    </div>
+  </footer>
+
+  <script>
+    // 博客链接数据 - 只需在这里添加新链接，页面会自动渲染
+    const blogLinks = [
+      {
+        title: "📝 官网博客",
+        url: "https://www.zhijie.qzz.io/blog",
+        description: "查看我的最新技术分享与心得"
+      },
+      {
+        title: "📖 博客园站点",
+        url: "https://www.cnblogs.com/bzjvip",
+        description: "访问我的旧版博客内容"
+      }
+    ];
+
+    // 快捷链接数据 - 只需在这里添加新链接，页面会自动渲染
+    const quickLinks = [
+      {
+        title: "🚀 新版跳转中心",
+        url: "/tools",
+        description: "访问最新版的快捷跳转工具中心"
+      },
+    //   {
+    //     title: "🎲 RollCall点名器",
+    //     url: "https://www.123pan.com/s/K9i0Vv-JiSgH.html",
+    //     description: "下载课堂点名器工具"
+    //   },
+    //   {
+    //     title: "📧 学生会邮件工具",
+    //     url: "/student_email/index.html",
+    //     description: "学生会专用邮件下载工具"
+    //   },
+    //   {
+    //     title: "🔐 密码生成器",
+    //     url: "/password-generator",
+    //     description: "生成安全可靠的随机密码"
+    //   },
+    //   {
+    //     title: "📱 APP签名工具",
+    //     url: "/hap-sign-utils-main/index.html",
+    //     description: "应用签名与验证工具"
+    //   },
+    //   {
+    //     title: "🔒 文字加密工具",
+    //     url: "/pass.html",
+    //     description: "文本内容加密与解密"
+    //   }
+    ];
+
+    // 渲染博客链接
+    function renderBlogLinks() {
+      const container = document.getElementById('blog-links');
+      container.innerHTML = blogLinks.map(link => `
+        <a href="${link.url}" class="link-item" target="_blank">
+          <div class="link-title">${link.title}</div>
+          <div class="link-desc">${link.description}</div>
+        </a>
+      `).join('');
+    }
+
+    // 渲染快捷链接
+    function renderQuickLinks() {
+      const container = document.getElementById('quick-links');
+      container.innerHTML = quickLinks.map(link => `
+        <a href="${link.url}" class="link-item">
+          <div class="link-title">${link.title}</div>
+          <div class="link-desc">${link.description}</div>
+        </a>
+      `).join('');
+    }
+
+    // 页面加载时渲染所有链接
+    document.addEventListener('DOMContentLoaded', () => {
+      renderBlogLinks();
+      renderQuickLinks();
+      
+      // 添加动态背景效果
+      const body = document.body;
+      let isMoving = false;
+      
+      document.addEventListener('mousemove', (e) => {
+        if (!isMoving) {
+          isMoving = true;
+          requestAnimationFrame(() => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            body.style.setProperty('--mouse-x', x);
+            body.style.setProperty('--mouse-y', y);
+            isMoving = false;
+          });
+        }
+      });
+    });
+
+    // 添加新链接的便捷函数（用于控制台）
+    window.addBlogLink = function(title, url, description) {
+      blogLinks.push({ title, url, description });
+      renderBlogLinks();
+    };
+
+    window.addQuickLink = function(title, url, description) {
+      quickLinks.push({ title, url, description });
+      renderQuickLinks();
+    };
+  </script>
+  
+  <script charset="UTF-8" id="MXA_COLLECT" src="//mxana.tacool.com/sdk.js"></script>
+  <script>MXA.init({ id: "c2-nyNt249m", useHeatMap: true, useHash: true, useErrorLog: true })</script>
 </body>
 </html>
