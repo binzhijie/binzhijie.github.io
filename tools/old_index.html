@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>快捷跳转中心</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #f9fbfd 0%, #edf2f7 100%);
+      min-height: 100vh;
+      padding: 50px 20px;
+      color: #2d3748;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.3rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      color: #1a202c;
+      letter-spacing: -0.5px;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .back-link a {
+      color: #1a73e8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 26px;
+    }
+
+    .link-card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .link-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .link-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .favicon {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-top: 2px;
+    }
+
+    .link-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1a73e8;
+      text-decoration: none;
+      line-height: 1.3;
+      transition: color 0.2s;
+    }
+
+    .link-title:hover {
+      color: #0d47a1;
+      text-decoration: underline;
+    }
+
+    .link-desc {
+      font-size: 0.95rem;
+      color: #4a5568;
+      line-height: 1.5;
+      margin-bottom: 14px;
+      flex-grow: 1;
+    }
+
+    .link-url {
+      font-size: 0.82rem;
+      color: #718096;
+      word-break: break-all;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 30px 16px;
+      }
+      h1 {
+        font-size: 1.9rem;
+      }
+      .links-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    footer {
+      /* background: #fff; */
+      text-align: center;
+      padding: 1rem;
+      color: #555;
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>快捷跳转中心</h1>
+    <div class="back-link">
+      <a href="/">← 返回主页</a>
+    </div>
+    <div class="links-grid" id="links-container"></div>
+  </div>
+
+  <script>
+    const quickLinks = [
+      {
+        name: "官网博客",
+        desc: "BinZhijie 的主博客站点",
+        url: "https://www.zhijie.qzz.io/blog"
+      },
+      {
+        name: "博客园（旧）",
+        desc: "BinZhijie 的博客园主页",
+        url: "https://www.cnblogs.com/bzjvip"
+      },
+      {
+        name: "飘秋云岭服务器网站",
+        desc: "飘秋云岭 Minecraft 服务器官网",
+        url: "https://www.zhijie.qzz.io/server_website/index.html"
+      },
+      {
+        name: "密码生成工具",
+        desc: "生成高强度随机密码",
+        url: "https://www.zhijie.qzz.io/password-generator"
+      },
+      {
+        name: "Active GitHub Forks",
+        desc: "Find active github forks of a repo https://git.io/vSnrC",
+        url: "https://www.zhijie.qzz.io/active-forks/"
+      },
+      {
+        name: "App签名工具",
+        desc: "鸿蒙轻智能手表.app文件签名工具",
+        url: "https://www.zhijie.qzz.io/hap-sign-utils-main/index.html"
+      },
+      {
+        name: "文字加密工具",
+        desc: "简单文本加密/解密页面",
+        url: "https://www.zhijie.qzz.io/pass.html"
+      },
+      {
+        name: "RollCall点名器下载",
+        desc: "课堂点名工具下载",
+        url: "https://www.123pan.com/s/K9i0Vv-JiSgH.html"
+      },
+      {
+        name: "学生会专用邮件下载",
+        desc: "学生会内部邮件模板下载页",
+        url: "https://www.zhijie.qzz.io/student_email/index.html"
+      },
+      {
+        name: "开源阅读资源下载",
+        desc: "开源阅读资源下载",
+        url: "https://www.zhijie.qzz.io/legado-web/"
+      }
+    ];
+
+    const container = document.getElementById("links-container");
+    quickLinks.forEach(link => {
+      try {
+        // 处理相对路径：只对绝对 URL 提取 favicon
+        let faviconUrl = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%23e2e8f0'/%3E%3C/svg%3E"; // 默认占位图标
+        if (link.url.startsWith("http")) {
+          const urlObj = new URL(link.url);
+          const domain = urlObj.hostname.replace(/^www\./, '');
+          faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+        }
+
+        const card = document.createElement("div");
+        card.className = "link-card";
+        card.innerHTML = `
+          <div class="link-header">
+            <img class="favicon" src="${faviconUrl}" alt="" onerror="this.style.opacity='0'">
+            <a class="link-title" href="${link.url}" target="_blank" rel="noopener">${link.name}</a>
+          </div>
+          <div class="link-desc">${link.desc}</div>
+          <div class="link-url">${link.url}</div>
+        `;
+        container.appendChild(card);
+      } catch (e) {
+        console.warn("无效链接:", link.url);
+      }
+    });
+  </script>
+  <footer>BinZhijie &copy; 2026</footer>
+</body>
+</html>
