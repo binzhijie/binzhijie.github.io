@@ -1,492 +1,928 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>飘秋云岭 - 我的世界服务器</title>
-  <link rel="icon" href="/icon.ico" sizes="16x16" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <style>
-    :root {
-      /* 主色调定义 */
-      --bg: #f0f8ff;
-      --blue: #5f9ea0;
-      --blue-dark: #3e7b7d;
-      --blue-light: #d1efff; /* 新增浅蓝色 */
-      --text: #333;
-      --text-secondary: #555;
-      --card-bg: #ffffff;
-      --shadow: rgba(0, 0, 0, 0.08);
-      --transition: all 0.3s ease;
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      scroll-behavior: smooth; /* 平滑滚动 */
-    }
-
-    /* 导航栏优化 */
-    nav {
-      position: sticky; /* 使用sticky替代fixed，改善行为 */
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: #ffffffcc;
-      backdrop-filter: blur(8px); /* 增加模糊值 */
-      display: flex;
-      justify-content: center;
-      gap: 2.5rem; /* 增大间距 */
-      padding: 1rem 0;
-      z-index: 1000;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); /* 加深阴影 */
-      transition: var(--transition); /* 添加过渡 */
-    }
-    nav.scrolled { /* 滚动时的样式 */
-        padding: 0.75rem 0;
-        background: #ffffffee;
-        backdrop-filter: blur(4px);
-    }
-    nav a {
-      color: var(--blue-dark);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1.1rem; /* 字体稍大 */
-      transition: var(--transition);
-      position: relative; /* 为下划线动画准备 */
-      padding: 0.25rem 0; /* 增加点击热区高度 */
-    }
-    nav a::after { /* 下划线动画 */
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 0;
-        height: 2px;
-        background: var(--blue);
-        transition: var(--transition);
-    }
-    nav a:hover {
-      color: var(--blue);
-    }
-    nav a:hover::after {
-        width: 100%;
-    }
-
-    /* 英雄区域优化 */
-    .hero {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      background: linear-gradient(135deg, #b5e2ff 0%, var(--blue-light) 100%);
-      position: relative; /* 为背景图层准备 */
-      overflow: hidden; /* 防止内容溢出 */
-    }
-    .hero::before { /* 可选：添加装饰性几何图形 */
-        content: "";
-        position: absolute;
-        width: 200%;
-        height: 200%;
-        top: -50%;
-        left: -50%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        animation: rotate 20s linear infinite; /* 缓慢旋转 */
-    }
-    @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    .hero > * { /* 确保内容在最上层 */
-        position: relative;
-        z-index: 10;
-    }
-    .hero h1 {
-      font-size: clamp(2.5rem, 8vw, 3.5rem); /* 响应式字体大小 */
-      margin-bottom: 0.75rem;
-      color: var(--blue-dark);
-      text-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 文字阴影 */
-    }
-    .hero p {
-      font-size: clamp(1.1rem, 3vw, 1.3rem);
-      margin-bottom: 1.5rem;
-      color: var(--text-secondary);
-      max-width: 600px;
-      padding: 0 1rem;
-    }
-    .ip-btn {
-      background: var(--blue);
-      color: #fff;
-      padding: 0.85rem 1.8rem; /* 增大按钮 */
-      border-radius: 50px;
-      cursor: pointer;
-      font-family: monospace;
-      font-size: 1.15rem;
-      transition: var(--transition);
-      border: none; /* 移除默认边框 */
-      outline: none; /* 移除聚焦轮廓 */
-      box-shadow: 0 4px 10px rgba(95, 158, 160, 0.3); /* 添加按钮阴影 */
-      position: relative;
-      overflow: hidden; /* 用于内部动画效果 */
-    }
-    .ip-btn::before { /* 按钮点击波纹效果 */
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-    }
-    .ip-btn:hover {
-      background: var(--blue-dark);
-      transform: translateY(-2px); /* 悬停上浮 */
-      box-shadow: 0 6px 15px rgba(62, 123, 125, 0.4);
-    }
-    .ip-btn:active::before { /* 点击时的波纹 */
-        width: 300px;
-        height: 300px;
-    }
-    .cta {
-      margin-top: 1.5rem; /* 增大间距 */
-      display: flex;
-      gap: 1rem; /* 按钮间间距 */
-      flex-wrap: wrap; /* 允许换行 */
-      justify-content: center; /* 居中对齐 */
-    }
-    .cta a {
-      background: var(--blue);
-      color: #fff;
-      padding: 0.7rem 1.4rem; /* 增大按钮 */
-      border-radius: 50px;
-      text-decoration: none;
-      transition: var(--transition);
-      box-shadow: 0 4px 8px rgba(95, 158, 160, 0.2);
-      font-weight: 500;
-    }
-    .cta a:hover {
-      background: var(--blue-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(62, 123, 125, 0.3);
-    }
-    .status-img-container { /* 图片容器 */
-        margin: 2rem 0 1rem;
-        padding: 0.5rem;
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 8px;
-        display: inline-block;
-        max-width: 100%;
-    }
-    .status-img-container img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-        border-radius: 4px;
-    }
-
-    /* 内容区域优化 */
-    .section {
-      max-width: 1200px; /* 增大最大宽度 */
-      margin: 5rem auto; /* 增大上下边距 */
-      padding: 0 1.5rem;
-    }
-    .section h2 {
-      font-size: clamp(2rem, 5vw, 2.5rem);
-      margin-bottom: 2rem;
-      text-align: center;
-      color: var(--blue-dark);
-      position: relative;
-    }
-    .section h2::after { /* 标题下划线 */
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: var(--blue);
-        border-radius: 2px;
-    }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); /* 更灵活的网格 */
-      gap: 2rem; /* 增大卡片间距 */
-    }
-    .card {
-      background: var(--card-bg);
-      border-radius: 16px; /* 增大圆角 */
-      padding: 2rem;
-      box-shadow: 0 4px 16px var(--shadow);
-      transition: var(--transition);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    .card:hover {
-      transform: translateY(-10px); /* 悬停上浮 */
-      box-shadow: 0 12px 24px var(--shadow); /* 悬停加深阴影 */
-    }
-    .card i { /* Font Awesome 图标样式 */
-        font-size: 2.5rem;
-        color: var(--blue);
-        margin-bottom: 1rem;
-    }
-    .card h3 {
-      font-size: 1.5rem; /* 统一标题大小 */
-      margin: 0 0 1rem;
-      color: var(--blue-dark);
-    }
-    .card p {
-      color: var(--text-secondary);
-      margin: 0;
-    }
-    .rules .card {
-      margin-bottom: 1.5rem; /* 增大规则卡片间距 */
-    }
-
-    /* 页脚优化 */
-    footer {
-      background: var(--card-bg);
-      text-align: center;
-      padding: 2.5rem 1rem; /* 增大内边距 */
-      color: var(--text-secondary);
-      font-size: 1rem;
-      border-top: 1px solid rgba(0,0,0,0.05); /* 顶部细线 */
-    }
-
-    /* 响应式调整 */
-    @media (max-width: 768px) {
-        nav {
-            gap: 1.5rem;
-            padding: 0.8rem 0;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飘秋云岭 - 公益Minecraft服务器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #D2691E;
+            --accent-color: #FFA500;
+            --light-color: #FFF8E1;
+            --dark-color: #3E2723;
+            --success-color: #4CAF50;
+            --text-color: #333;
+            --text-light: #f8f4e9;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            --transition: all 0.3s ease;
         }
-        nav a {
-            font-size: 1rem;
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .hero h1 {
-          font-size: 2.2rem;
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f5f1e6 0%, #e8dfca 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
         }
-        .hero p {
-          font-size: 1.1rem;
-        }
-        .ip-btn {
-          padding: 0.7rem 1.4rem;
-          font-size: 1rem;
-        }
-        .cta {
-            flex-direction: column;
+        
+        /* 导航栏样式 */
+        .navbar {
+            background: rgba(139, 69, 19, 0.95);
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
         }
-        .cta a {
-          width: 80%;
-          padding: 0.8rem;
+        
+        .navbar.scrolled {
+            background: rgba(101, 67, 33, 0.98);
+            padding: 0.8rem 5%;
         }
-        .section {
-            margin: 4rem auto;
-            padding: 0 1rem;
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
         }
-        .section h2 {
-          font-size: 2rem;
-          margin-bottom: 1.5rem;
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 2.2rem;
         }
-        .card {
-            padding: 1.5rem;
+        
+        .logo span {
+            background: linear-gradient(to right, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .card h3 {
-            font-size: 1.4rem;
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
         }
-        .status-img-container {
-            margin: 1.5rem 0 0.5rem;
+        
+        .nav-links li {
+            margin-left: 2rem;
         }
-    }
-    @media (max-width: 480px) {
-        nav {
-            gap: 1rem;
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.05rem;
+            padding: 5px 0;
+            position: relative;
+            transition: var(--transition);
         }
+        
+        .nav-links a:hover, 
+        .nav-links a.active {
+            color: #FFD700;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #FFD700;
+            transition: var(--transition);
+        }
+        
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* 英雄区域样式 */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(62, 39, 35, 0.85), rgba(101, 67, 33, 0.9)), url('https://images.unsplash.com/photo-1594303358265-2d2c4a8c8bad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--text-light);
+            padding: 0 20px;
+        }
+        
         .hero h1 {
-          font-size: 1.8rem;
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(to right, #FFD700, #FFA500, #D2691E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
         }
+        
         .hero p {
-          font-size: 1rem;
+            font-size: 1.8rem;
+            max-width: 800px;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
         }
-        .ip-btn {
-          padding: 0.6rem 1.2rem;
-          font-size: 0.95rem;
+        
+        .hero-subtitle {
+            font-size: 1.4rem;
+            margin-top: 15px;
+            opacity: 0.9;
+            max-width: 700px;
         }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.15rem;
+            transition: var(--transition);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border-color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: var(--primary-color);
+        }
+        
+        /* 服务器信息区域 */
         .section {
-            margin: 3rem auto;
+            padding: 5rem 10%;
+            background-color: white;
         }
-        .card {
-            padding: 1.25rem;
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3.5rem;
         }
-        .card h3 {
+        
+        .section-title h2 {
+            font-size: 2.8rem;
+            color: var(--primary-color);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+        
+        .section-title p {
+            color: var(--secondary-color);
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .server-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            text-align: center;
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            transition: var(--transition);
+            border: 1px solid rgba(139, 69, 19, 0.15);
+        }
+        
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .info-card i {
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+        
+        .info-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .info-card p {
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .server-address {
+            background: var(--light-color);
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-family: monospace;
+            letter-spacing: 1px;
+            margin: 10px 0;
+            border: 1px dashed var(--secondary-color);
             font-size: 1.3rem;
         }
-    }
-  </style>
-  <script charset="UTF-8" id="MXA_COLLECT" src="//mxana.tacool.com/sdk.js"></script>
-  <script>MXA.init({ id: "c2-nyNt249m", useHeatMap: true, useHash: true, useErrorLog: true })</script>
+        
+        /* 特色区域 */
+        .features {
+            background: linear-gradient(rgba(101, 67, 33, 0.08), rgba(139, 69, 19, 0.08)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f5f1e6"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="%23e8dfca" stroke-width="0.5" fill="none"/></svg>');
+            background-size: cover;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 35px 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-top: 4px solid var(--accent-color);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+        }
+        
+        .feature-card i {
+            font-size: 3.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.9rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        /* 连接指南区域 */
+        .connect-guide {
+            background-color: white;
+        }
+        
+        .guide-steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .step-card {
+            background: var(--light-color);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+            box-shadow: var(--shadow);
+            position: relative;
+            border: 1px solid rgba(210, 105, 30, 0.2);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 45px;
+            height: 45px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            border: 3px solid white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .step-card i {
+            font-size: 2.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .step-card h3 {
+            font-size: 1.7rem;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .download-btn {
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 15px;
+            transition: var(--transition);
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .download-btn:hover {
+            background: transparent;
+            color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .download-btn i {
+            margin-right: 8px;
+        }
+        
+        /* 社区区域 */
+        .community {
+            background: linear-gradient(rgba(139, 69, 19, 0.07), rgba(210, 105, 30, 0.07)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e8dfca"/><circle cx="20" cy="20" r="3" fill="%23d4c8a8" opacity="0.6"/><circle cx="50" cy="60" r="4" fill="%23d4c8a8" opacity="0.4"/><circle cx="80" cy="30" r="3" fill="%23d4c8a8" opacity="0.5"/></svg>');
+            background-size: cover;
+        }
+        
+        .community-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin-top: 30px;
+        }
+        
+        .community-content h3 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .community-content p {
+            font-size: 1.25rem;
+            margin-bottom: 25px;
+            color: #555;
+        }
+        
+        .qq-group {
+            background: var(--light-color);
+            border: 2px dashed var(--secondary-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--primary-color);
+            display: inline-block;
+            min-width: 300px;
+        }
+        
+        .feedback-form {
+            max-width: 600px;
+            margin: 30px auto 0;
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.2);
+            outline: none;
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        /* 页脚 */
+        .footer {
+            background: var(--dark-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 35px 20px;
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .footer-logo span {
+            color: var(--accent-color);
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 8px;
+            border-radius: 50%;
+            color: white;
+            line-height: 45px;
+            font-size: 1.3rem;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background: var(--accent-color);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            margin-top: 20px;
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+        
+        /* 动画效果 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 3.8rem;
+            }
+            
+            .hero p {
+                font-size: 1.6rem;
+            }
+            
+            .section {
+                padding: 4rem 8%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                width: 80%;
+                height: calc(100vh - 70px);
+                background: rgba(101, 67, 33, 0.98);
+                flex-direction: column;
+                align-items: center;
+                padding-top: 30px;
+                transition: var(--transition);
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+            }
+            
+            .nav-links.active {
+                right: 0;
+            }
+            
+            .nav-links li {
+                margin: 15px 0;
+            }
+            
+            .hero h1 {
+                font-size: 3.2rem;
+            }
+            
+            .hero p {
+                font-size: 1.4rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 3.5rem 5%;
+            }
+            
+            .section-title h2 {
+                font-size: 2.4rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.7rem;
+            }
+            
+            .hero p {
+                font-size: 1.3rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2.1rem;
+            }
+            
+            .info-card, .feature-card, .step-card {
+                min-width: 100%;
+            }
+            
+            .qq-group {
+                min-width: 250px;
+                font-size: 1.5rem;
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- 导航 -->
-  <nav id="navbar">
-    <a href="#home"><i class="fas fa-home"></i> 首页</a>
-    <a href="#features"><i class="fas fa-cube"></i> 服务器特色</a>
-    <a href="#rules"><i class="fas fa-book"></i> 规则</a>
-    <a href="#join"><i class="fas fa-user-plus"></i> 如何加入</a>
-  </nav>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <i class="fas fa-mountain"></i>
+            飘秋云岭<span>.</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#home" class="active">首页</a></li>
+            <li><a href="#info">服务器信息</a></li>
+            <li><a href="#features">服务器特色</a></li>
+            <li><a href="#connect">连接指南</a></li>
+            <li><a href="#community">社区支持</a></li>
+        </ul>
+        <button class="hamburger">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
 
-  <!-- 首页 -->
-  <section id="home" class="hero">
-    <h1>飘秋云岭</h1>
-    <p>一个纯净的生存服务器，欢迎每一位冒险者的到来！在这里，你可以自由探索、建造、生存，享受原汁原味的Minecraft乐趣。</p>
-    <div class="ip-btn" onclick="copyIP()" title="点击复制服务器地址">
-        <i class="fas fa-server"></i> play.zhijiebin.top
-    </div>
-    <div class="cta">
-      <a href="#join"><i class="fas fa-play-circle"></i> 立即加入</a>
-      <a href="#features"><i class="fas fa-star"></i> 查看特色</a>
-    </div>
-    <div class="status-img-container">
-        <img src="https://www.wdsjfwq.com/votebanner-1964-dvdvdv.png" alt="飘秋云岭" >
-    </div>
-  </section>
+    <!-- 英雄区域 -->
+    <section class="hero" id="home">
+        <h1>飘秋云岭</h1>
+        <p>公益Minecraft服务器，无广告，人人平等</p>
+        <p class="hero-subtitle">纯净生存体验 · Java版与基岩版互通 · 听劝的腐竹 · 永久免费</p>
+        <div class="cta-buttons">
+            <a href="#connect" class="btn btn-primary">立即加入</a>
+            <a href="#features" class="btn btn-secondary">了解特色</a>
+        </div>
+        <div>
+          <img src="https://motd.minebbs.com/api/status_img?ip=play.zhijiebin.top&port=25565&stype=auto&theme=simple" style="margin: 50px;">
+        </div>
+    </section>
 
-  <!-- 服务器特色 -->
-  <section id="features" class="section">
-    <h2>服务器特色</h2>
-    <div class="features">
-      <div class="card">
-        <i class="fas fa-leaf"></i>
-        <h3>纯净生存</h3>
-        <p>基于原版Minecraft，仅添加必要的轻量化插件，确保最纯粹的游戏体验。</p>
-      </div>
-      <div class="card">
-        <i class="fas fa-coins"></i>
-        <h3>经济系统</h3>
-        <p>拥有简单的商店和玩家交易市场，让你的劳动成果更有价值。</p>
-      </div>
-      <div class="card">
-        <i class="fas fa-shield-alt"></i>
-        <h3>领地保护</h3>
-        <p>完善的领地系统，有效防止他人恶意破坏，保护你的家园。</p>
-      </div>
-      <div class="card">
-        <i class="fas fa-database"></i>
-        <h3>定期备份</h3>
-        <p>服务器数据每日自动备份，保障你的世界安全无忧。</p>
-      </div>
-    </div>
-  </section>
+    <!-- 服务器信息区域 -->
+    <section class="section" id="info">
+        <div class="section-title">
+            <h2>服务器信息</h2>
+            <p>快速了解如何连接到我们的服务器</p>
+        </div>
+        <div class="server-info">
+            <div class="info-card">
+                <i class="fas fa-cube"></i>
+                <h3>Java版地址</h3>
+                <p>使用Minecraft Java版客户端连接</p>
+                <div class="server-address">play.zhijiebin.top</div>
+                <p>支持版本: 1.21.4</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>基岩版地址</h3>
+                <p>使用Minecraft基岩版(手机/Win10)连接</p>
+                <div class="server-address">play.simpfun.cn:39900</div>
+                <p>支持版本: 最新基岩版</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>服务器规则</h3>
+                <p>无白名单 · 无广告 · 无付费特权</p>
+                <div class="server-address">人人平等</div>
+                <p>纯净游戏环境，公平公正</p>
+            </div>
+        </div>
+    </section>
 
-  <!-- 规则 -->
-  <section id="rules" class="section rules">
-    <h2>服务器规则</h2>
-    <div class="card">
-      <i class="fas fa-ban"></i>
-      <h3>禁止作弊</h3>
-      <p>使用任何第三方辅助或漏洞进行游戏将被永久封禁。</p>
-    </div>
-    <div class="card">
-      <i class="fas fa-hands-helping"></i>
-      <h3>友好相处</h3>
-      <p>请尊重其他玩家，禁止任何形式的辱骂、欺诈和恶意破坏。</p>
-    </div>
-    <div class="card">
-      <i class="fas fa-building"></i>
-      <h3>文明建筑</h3>
-      <p>鼓励创意建设，请避免建造影响环境美观或妨碍他人的大型结构。</p>
-    </div>
-  </section>
+    <!-- 服务器特色区域 -->
+    <section class="section features" id="features">
+        <div class="section-title">
+            <h2>服务器特色</h2>
+            <p>为什么选择飘秋云岭服务器？</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-heart"></i>
+                <h3>公益服务器</h3>
+                <p>完全免费，无任何付费项目，无广告干扰，致力于提供纯净的游戏体验。</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-leaf"></i>
+                <h3>纯净生存</h3>
+                <p>精心挑选的插件，保证游戏平衡性，无破坏游戏体验的氪金道具或特权。</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>全平台互通</h3>
+                <p>Java版与基岩版玩家可以一起游戏，跨平台联机，好友无论使用什么设备都能加入。</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-headphones"></i>
+                <h3>听劝的腐竹</h3>
+                <p>管理团队积极听取玩家建议，定期更新内容，根据社区反馈优化游戏体验。</p>
+            </div>
+        </div>
+    </section>
 
-  <!-- 如何加入 -->
-  <section id="join" class="section">
-    <h2>如何加入我们</h2>
-    <div class="features">
-      <div class="card">
-        <i class="fas fa-download"></i>
-        <h3>安装游戏</h3>
-        <p>请确保你拥有 Minecraft Java 版，并更新至 1.20 或更高版本。</p>
-      </div>
-      <div class="card">
-        <i class="fas fa-network-wired"></i>
-        <h3>添加服务器</h3>
-        <p>进入游戏，点击“多人游戏” → “添加服务器”，在服务器地址栏输入：<strong>play.zhijiebin.top</strong></p>
-      </div>
-      <div class="card">
-        <i class="fas fa-comments"></i>
-        <h3>申请白名单</h3>
-        <p>加入我们的官方QQ群 <strong>859034554</strong>，联系管理员申请白名单即可开始游戏！</p>
-      </div>
-    </div>
-  </section>
+    <!-- 连接指南区域 -->
+    <section class="section connect-guide" id="connect">
+        <div class="section-title">
+            <h2>连接指南</h2>
+            <p>三步轻松加入服务器</p>
+        </div>
+        <div class="guide-steps">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <i class="fas fa-download"></i>
+                <h3>下载游戏</h3>
+                <p>确保你已安装Minecraft Java版或基岩版客户端，版本需在1.16.5以上。</p>
+                <a href="https://www.minecraft.net/zh-hans/download" class="download-btn" target="_blank">
+                    <i class="fas fa-download"></i>官方下载
+                </a>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <i class="fas fa-server"></i>
+                <h3>添加服务器</h3>
+                <p>在游戏主界面点击"多人游戏"，然后点击"添加服务器"，输入对应版本的服务器地址。</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <i class="fas fa-sign-in-alt"></i>
+                <h3>加入游戏</h3>
+                <p>选择已添加的服务器，点击"加入服务器"即可开始你的冒险之旅！</p>
+            </div>
+        </div>
+    </section>
 
-  <footer>
-    <p>&copy; 2025 飘秋云岭 Minecraft 服务器. 保留所有权利.</p>
-    <p>Design by ZhijieBin <i class="fas fa-heart" style="color: var(--blue);"></i></p>
-  </footer>
+    <!-- 社区支持区域
+    <section class="section community" id="community">
+        <div class="section-title">
+            <h2>社区与支持</h2>
+            <p>加入玩家社区，获取帮助或提出建议</p>
+        </div>
+        <div class="community-content">
+            <h3>玩家交流QQ群</h3>
+            <p>加入我们的QQ群，与其他玩家交流心得，获取最新服务器动态，或向管理团队反馈问题</p>
+            <div class="qq-group">
+                <i class="fab fa-qq"></i> 859034554
+            </div>
+            <p>群内有活跃的管理团队和热心玩家，随时为你解答问题</p>
+            
+            <h3 style="margin-top: 35px; margin-bottom: 15px;">反馈与建议</h3>
+            <p>如果你有任何建议或遇到问题，欢迎通过以下表单提交</p>
+            <form class="feedback-form">
+                <div class="form-group">
+                    <label for="name">昵称</label>
+                    <input type="text" id="name" class="form-control" placeholder="你的游戏昵称" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">联系方式 (QQ/邮箱)</label>
+                    <input type="text" id="email" class="form-control" placeholder="方便我们联系你" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">反馈内容</label>
+                    <textarea id="message" class="form-control" placeholder="请详细描述你的建议或问题..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">
+                    <i class="fas fa-paper-plane"></i> 提交反馈
+                </button>
+            </form>
+        </div>
+    </section> -->
 
-  <script>
-    // 导航栏滚动效果
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <span class="footer-logo">飘秋云岭<span>.</span></span>
+            <p>公益Minecraft服务器 · 无广告 · 人人平等</p>
+            <div class="social-links">
+                <a href="#" title="QQ群"><i class="fab fa-qq"></i></a>
+                <!-- <a href="#" title="Bilibili"><i class="fab fa-bilibili"></i></a>
+                <a href="#" title="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" title="微博"><i class="fab fa-weibo"></i></a> -->
+            </div>
+            <p class="copyright">
+                &copy; 2026 飘秋云岭Minecraft服务器. 保留所有权利. <br>
+                服务器地址: Java版 play.zhijiebin.top | 基岩版 play.simpfun.cn:39900
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // 移动端菜单切换
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburger.innerHTML = navLinks.classList.contains('active') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+        });
+        
+        // 导航链接点击平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 关闭移动端菜单
+                if (navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                    hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+                }
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 更新活动链接
+                    document.querySelectorAll('.nav-links a').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        // 监听滚动更新活动导航链接
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const scrollPos = window.scrollY + 80;
+            
+            sections.forEach(section => {
+                if (scrollPos >= section.offsetTop && scrollPos < (section.offsetTop + section.offsetHeight)) {
+                    const id = section.getAttribute('id');
+                    document.querySelectorAll('.nav-links a').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${id}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        });
+        
+        // 表单提交处理
+        const feedbackForm = document.querySelector('.feedback-form');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('感谢你的反馈！管理团队会尽快查看并回复你。');
+                feedbackForm.reset();
+            });
         }
-    });
-
-    // 复制IP功能
-    async function copyIP() {
-        try {
-            await navigator.clipboard.writeText('play.zhijiebin.top');
-            // 创建一个临时提示元素
-            const tooltip = document.createElement('div');
-            tooltip.textContent = '已复制到剪贴板!';
-            tooltip.style.position = 'fixed';
-            tooltip.style.bottom = '20px';
-            tooltip.style.left = '50%';
-            tooltip.style.transform = 'translateX(-50%)';
-            tooltip.style.backgroundColor = '#333';
-            tooltip.style.color = '#fff';
-            tooltip.style.padding = '8px 16px';
-            tooltip.style.borderRadius = '4px';
-            tooltip.style.fontSize = '0.9rem';
-            tooltip.style.zIndex = '10000';
-            tooltip.style.opacity = '0';
-            tooltip.style.transition = 'opacity 0.3s';
-            document.body.appendChild(tooltip);
-
-            // 显示提示
-            setTimeout(() => { tooltip.style.opacity = '1'; }, 10);
-
-            // 2秒后淡出并移除
-            setTimeout(() => {
-                tooltip.style.opacity = '0';
-                setTimeout(() => {
-                    document.body.removeChild(tooltip);
-                }, 300);
-            }, 2000);
-
-        } catch (err) {
-            console.error('无法复制文本: ', err);
-            alert('复制失败，请手动复制: play.zhijiebin.top');
-        }
-    }
-  </script>
+        
+        // 初始化时设置首页链接为活动状态
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('.nav-links a[href="#home"]').classList.add('active');
+        });
+    </script>
 </body>
 </html>
